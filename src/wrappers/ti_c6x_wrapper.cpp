@@ -57,9 +57,54 @@ string_list_t make_preprocessor_cmd(const string_list_t& args,
   return preprocess_args;
 }
 
+bool is_ar_file_data(const std::string& data) {
+  const char AR_SIGNATURE[] = {0x21, 0x3c, 0x61, 0x72, 0x63, 0x68, 0x3e, 0x0a, 0};
+  return (data.substr(0, sizeof(AR_SIGNATURE) - 1) == AR_SIGNATURE);
+}
+
+void hash_ar_file_data(const std::string& data, hasher_t& hasher) {
+  try {
+    size_t pos = 8;
+    while (pos < data.size()) {
+      if ((pos + 60) > data.size()) {
+        throw std::runtime_error("Invalid AR file header.");
+      }
+
+      // Hash all parts of the header except the timestamp.
+      // See: https://en.wikipedia.org/wiki/Ar_(Unix)#File_header
+      hasher.update(&data[pos], 16);
+      hasher.update(&data[pos + 28], 32);
+
+      // Hash the file data.
+      const auto file_size = std::stoll(data.substr(pos + 48, 10));
+      if (file_size < 0 || (pos + static_cast<size_t>(file_size)) > data.size()) {
+        throw std::runtime_error("Invalid file size.");
+      }
+      hasher.update(&data[pos + 60], file_size);
+
+      // Skip to the next file header.
+      // Note: File data is padded to an even number of bytes.
+      pos += 60 + file_size + (file_size & 1);
+    }
+  } catch (const std::exception& e) {
+    throw std::runtime_error(std::string("Unable to parse an AR format file: ") +
+                             std::string(e.what()));
+  }
+}
+
 void hash_link_file(const std::string& path, hasher_t& hasher) {
-  debug::log(debug::DEBUG) << "Hashing " << path;
-  hasher.update_from_file(path);
+  // Read the complete file into a string.
+  const auto data = file::read(path);
+
+  if (is_ar_file_data(data)) {
+    // AR files need special treatment: Drop the time stamps.
+    debug::log(debug::DEBUG) << "Hashing AR: " << file::get_file_part(path);
+    hash_ar_file_data(data, hasher);
+  } else {
+    // Fall back to hashing the entire file.
+    debug::log(debug::DEBUG) << "Hashing: " << file::get_file_part(path);
+    hasher.update(data);
+  }
 }
 
 void hash_link_cmd_file(const std::string& path, hasher_t& hasher) {
