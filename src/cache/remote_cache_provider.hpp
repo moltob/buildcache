@@ -60,10 +60,12 @@ public:
   /// @param source_id The ID of the remote file to copy.
   /// @param target_path The path to the local file.
   /// @param is_compressed True if the remote data is compressed.
+  /// @param create_target_dirs True if parent directory of cache file must be created.
   virtual void get_file(const hasher_t::hash_t& hash,
                         const std::string& source_id,
                         const std::string& target_path,
-                        const bool is_compressed) = 0;
+                        const bool is_compressed,
+                        const bool create_target_dirs) = 0;
 
 protected:
   // Constructor called by child classes.

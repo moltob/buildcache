@@ -357,9 +357,13 @@ void local_cache_t::get_file(const hasher_t::hash_t& hash,
                              const std::string& source_id,
                              const std::string& target_path,
                              const bool is_compressed,
-                             const bool allow_hard_links) {
+                             const bool allow_hard_links,
+                             const bool create_target_dirs) {
   const auto cache_entry_path = hash_to_cache_entry_path(hash);
   const auto source_path = file::append_path(cache_entry_path, source_id);
+  if (create_target_dirs) {
+    file::create_dir_with_parents(file::get_dir_part(target_path));
+  }
   if (is_compressed) {
     debug::log(debug::DEBUG) << "Decompressing file from cache";
     comp::decompress_file(source_path, target_path);

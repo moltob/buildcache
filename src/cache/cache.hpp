@@ -38,11 +38,13 @@ public:
   /// @param expected_files Paths to the actual files in the local file system (map from file ID to
   /// an expected file descriptor).
   /// @param allow_hard_links True if we are allowed to use hard links.
+  /// @param create_target_dirs True if the target directory of the cached file must be created.
   /// @param[out] return_code The return code of the program.
   /// @returns true if we had a cache hit, otherwise false.
   bool lookup(const hasher_t::hash_t hash,
               const std::map<std::string, expected_file_t>& expected_files,
               const bool allow_hard_links,
+              const bool create_target_dirs,
               int& return_code);
 
   /// @brief Add a new entry to the cache(s).
@@ -60,11 +62,13 @@ private:
   bool lookup_in_local_cache(const hasher_t::hash_t hash,
                              const std::map<std::string, expected_file_t>& expected_files,
                              const bool allow_hard_links,
+                             const bool create_target_dirs,
                              int& return_code);
 
   bool lookup_in_remote_cache(const hasher_t::hash_t hash,
                               const std::map<std::string, expected_file_t>& expected_files,
                               const bool allow_hard_links,
+                              const bool create_target_dirs,
                               int& return_code);
 
   local_cache_t m_local_cache;

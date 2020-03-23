@@ -51,14 +51,17 @@ int64_t get_total_entry_size(const cache_entry_t& entry,
 bool cache_t::lookup(const hasher_t::hash_t hash,
                      const std::map<std::string, expected_file_t>& expected_files,
                      const bool allow_hard_links,
+                     const bool create_target_dirs,
                      int& return_code) {
   // First try the local cache.
-  if (lookup_in_local_cache(hash, expected_files, allow_hard_links, return_code)) {
+  if (lookup_in_local_cache(
+          hash, expected_files, allow_hard_links, create_target_dirs, return_code)) {
     return true;
   }
 
   // Then try the remote cache.
-  if (lookup_in_remote_cache(hash, expected_files, allow_hard_links, return_code)) {
+  if (lookup_in_remote_cache(
+          hash, expected_files, allow_hard_links, create_target_dirs, return_code)) {
     return true;
   }
 
@@ -104,6 +107,7 @@ void cache_t::add(const hasher_t::hash_t hash,
 bool cache_t::lookup_in_local_cache(const hasher_t::hash_t hash,
                                     const std::map<std::string, expected_file_t>& expected_files,
                                     const bool allow_hard_links,
+                                    const bool create_target_dirs,
                                     int& return_code) {
   PERF_START(CACHE_LOOKUP);
   // Note: The lookup will give us a lock file that is locked until we go out of scope.
@@ -124,7 +128,8 @@ bool cache_t::lookup_in_local_cache(const hasher_t::hash_t hash,
     debug::log(debug::INFO) << "Cache hit (" << hash.as_string() << "): " << file_id << " => "
                             << target_path;
     const auto is_compressed = (cached_entry.compression_mode() == cache_entry_t::comp_mode_t::ALL);
-    m_local_cache.get_file(hash, file_id, target_path, is_compressed, allow_hard_links);
+    m_local_cache.get_file(
+        hash, file_id, target_path, is_compressed, allow_hard_links, create_target_dirs);
   }
   PERF_STOP(RETRIEVE_CACHED_FILES);
 
@@ -139,6 +144,7 @@ bool cache_t::lookup_in_local_cache(const hasher_t::hash_t hash,
 bool cache_t::lookup_in_remote_cache(const hasher_t::hash_t hash,
                                      const std::map<std::string, expected_file_t>& expected_files,
                                      const bool allow_hard_links,
+                                     const bool create_target_dirs,
                                      int& return_code) {
   // Start by trying to connect to the remote cache.
   if (!m_remote_cache.connect()) {
@@ -163,7 +169,7 @@ bool cache_t::lookup_in_remote_cache(const hasher_t::hash_t hash,
     debug::log(debug::INFO) << "Remote cache hit (" << hash.as_string() << "): " << file_id
                             << " => " << target_path;
     const auto is_compressed = (cached_entry.compression_mode() == cache_entry_t::comp_mode_t::ALL);
-    m_remote_cache.get_file(hash, file_id, target_path, is_compressed);
+    m_remote_cache.get_file(hash, file_id, target_path, is_compressed, create_target_dirs);
   }
   PERF_STOP(RETRIEVE_CACHED_FILES);
 

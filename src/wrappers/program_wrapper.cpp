@@ -116,7 +116,11 @@ bool program_wrapper_t::handle_command(int& return_code) {
     PERF_STOP(GET_BUILD_FILES);
 
     // Look up the entry in the cache(s).
-    if (m_cache.lookup(hash, expected_files, allow_hard_links, return_code)) {
+    if (m_cache.lookup(hash,
+                       expected_files,
+                       allow_hard_links,
+                       capabilites.create_target_dirs(),
+                       return_code)) {
       return true;
     } else {
       debug::log(debug::INFO) << "Cache miss (" << hash.as_string() << ")";
