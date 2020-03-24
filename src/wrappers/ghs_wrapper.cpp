@@ -133,4 +133,9 @@ std::string ghs_wrapper_t::get_program_id() {
 
   return HASH_VERSION + program_version_info + os_version_info;
 }
+
+string_list_t ghs_wrapper_t::get_capabilities() {
+  // GHS compilers implicitly create target directories for object files:
+  return gcc_wrapper_t::get_capabilities() += "create_target_dirs";
+}
 }  // namespace bcache
