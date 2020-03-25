@@ -178,15 +178,11 @@ void s3_cache_provider_t::add(const hasher_t::hash_t& hash,
 void s3_cache_provider_t::get_file(const hasher_t::hash_t& hash,
                                    const std::string& source_id,
                                    const std::string& target_path,
-                                   const bool is_compressed,
-                                   const bool create_target_dirs) {
+                                   const bool is_compressed) {
   const auto key = remote_key_name(hash.as_string(), source_id);
   auto data = get_data(key);
   if (is_compressed) {
     data = comp::decompress(data);
-  }
-  if (create_target_dirs) {
-    file::create_dir_with_parents(file::get_dir_part(target_path));
   }
   file::write(data, target_path);
 }

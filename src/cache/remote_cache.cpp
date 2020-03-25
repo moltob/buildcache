@@ -117,10 +117,9 @@ void remote_cache_t::add(const hasher_t::hash_t& hash,
 void remote_cache_t::get_file(const hasher_t::hash_t& hash,
                               const std::string& source_id,
                               const std::string& target_path,
-                              const bool is_compressed,
-                              const bool create_target_dirs) {
+                              const bool is_compressed) {
   if (m_provider != nullptr) {
-    m_provider->get_file(hash, source_id, target_path, is_compressed, create_target_dirs);
+    m_provider->get_file(hash, source_id, target_path, is_compressed);
   }
 }
 

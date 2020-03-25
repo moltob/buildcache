@@ -39,8 +39,7 @@ public:
   void get_file(const hasher_t::hash_t& hash,
                 const std::string& source_id,
                 const std::string& target_path,
-                const bool is_compressed,
-                const bool create_target_dirs) override;
+                const bool is_compressed) override;
 
 private:
   /// @brief Disconnect (usually as a result of an error).

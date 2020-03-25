@@ -72,13 +72,11 @@ public:
   /// @param target_path The path to the local file.
   /// @param is_compressed True if the cached data is compressed.
   /// @param allow_hard_links True if hard links are allowed.
-  /// @param create_target_dirs True if target directory is created before copy from cache.
   void get_file(const hasher_t::hash_t& hash,
                 const std::string& source_id,
                 const std::string& target_path,
                 const bool is_compressed,
-                const bool allow_hard_links,
-                const bool create_target_dirs);
+                const bool allow_hard_links);
 
   /// @brief Update statistics associated with the given entry
   bool update_stats(const hasher_t::hash_t& hash, const cache_stats_t& delta) const noexcept;
