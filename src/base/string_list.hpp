@@ -158,6 +158,18 @@ public:
     return *this;
   }
 
+  string_list_t operator+(const std::string& str) const {
+    string_list_t result(*this);
+    result += str;
+    return result;
+  }
+
+  string_list_t operator+(const string_list_t& list) const {
+    string_list_t result(*this);
+    result += list;
+    return result;
+  }
+
   size_t size() const {
     return m_args.size();
   }
